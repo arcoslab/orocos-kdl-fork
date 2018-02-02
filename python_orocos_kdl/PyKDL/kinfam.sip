@@ -47,6 +47,10 @@ public:
     std::string getName()const;
 
     JointType getType() const;
+    const double getScale() const;
+%MethodCode
+    sipRes=sipCpp->getScale();
+%End
     std::string getTypeName() const;
     const char* __repr__();
 %MethodCode
@@ -139,10 +143,53 @@ public:
     
     void addSegment(const Segment& segment);
     void addChain(const Chain& chain);
+    int setCoupling(SIP_PYLIST,SIP_PYLIST);
+%MethodCode
+    //void setCoupling(const std::vector<bool> locked_joints,const Eigen::MatrixXd& cm);
+    //cm has to have exactly number of joints rows, and maximum number of joints colums 
+    //unsigned int nOfJoints=sipCpp->chain.getNrOfJoints(); //To check that we are receiving valid data dimensions. This doesn't work, chain is a private member. todo: How can we check for this? Maybe this check should be done when operating with the matrix, and not here? Maybe this check should be done inside the c++ code.
+    Py_ssize_t length;
+    PyObject *list=a0;
+    length=PyList_Size(list);
+    std::vector<bool> locked_joints(length,false);
+    for (Py_ssize_t r=0;r<length;r++) {
+        PyObject *item;
+        item=PyList_GetItem(list,r);
+	locked_joints[r]=PyFloat_AsDouble(item);
+    }
+
+    Py_ssize_t numRows,numCols;
+    double c_item;
+    PyObject *list2=a1;
+    numRows=PyList_Size(list2);
+    PyObject *temp1;
+    temp1=PyList_GetItem(list2,0);
+    numCols=PyList_Size(temp1);
+    Eigen::MatrixXd cm((int) numRows,(int) numCols);
+    for (Py_ssize_t r=0;r<numRows;r++) {
+        PyObject *row;
+        row=PyList_GetItem(list2,r);
+        if (numCols!=PyList_Size(row)) {
+           sipIsErr=1; //todo: raise exception
+	   	       //means that not all the rows are equally long
+        }
+        for (Py_ssize_t c=0;c<PyList_Size(row);c++) {
+            PyObject *item;
+            item=PyList_GetItem(row,c);
+            c_item=PyFloat_AsDouble(item);
+            cm(r,c)= c_item;
+        }
+    }
+    sipRes=sipCpp->setCoupling(locked_joints,cm);
+    
+%End
+
         
     unsigned int getNrOfJoints()const;
+    unsigned int getNrOfIndJoints()const;
     unsigned int getNrOfSegments()const;
-        
+    unsigned int getNrOfUnlockedJoints()const;
+
     const Segment& getSegment(unsigned int nr)const /Factory/;
 
 };
@@ -439,7 +486,8 @@ public:
         PyObject *row;
         row=PyList_GetItem(list,r);
         if (numCols!=PyList_Size(row)) {
-           sipIsErr=1; //todo: raise exception
+           sipIsErr=1; //todo: raise exception. This means that the other rows don't
+	   	       // have the same size
         }
         for (Py_ssize_t c=0;c<numCols;c++) {
             PyObject *item;
@@ -463,23 +511,24 @@ public:
     PyObject *temp1;
     temp1=PyList_GetItem(list,0);
     numCols=PyList_Size(temp1);
+    Eigen::MatrixXd Mq;
     if (numRows!=numCols) {
        sipIsErr=1; //todo: raise exception
-    }
-    Eigen::MatrixXd Mq;
-    Mq=Eigen::MatrixXd::Identity(numRows,numCols);
-    for (Py_ssize_t r=0;r<numRows;r++) {
-        PyObject *row;
-        row=PyList_GetItem(list,r);
-        if (numCols!=PyList_Size(row)) {
-           sipIsErr=1; //todo: raise exception
-        }
-        for (Py_ssize_t c=0;c<numCols;c++) {
-            PyObject *item;
-            item=PyList_GetItem(row,c);
-            c_item=PyFloat_AsDouble(item);
-            Mq(r,c)= c_item;
-        }
+    } else {
+      Mq=Eigen::MatrixXd::Identity(numRows,numCols);
+      for (Py_ssize_t r=0;r<numRows;r++) {
+       	  PyObject *row;
+          row=PyList_GetItem(list,r);
+          if (numCols!=PyList_Size(row)) {
+             sipIsErr=1; //todo: raise exception
+          }
+          for (Py_ssize_t c=0;c<numCols;c++) {
+              PyObject *item;
+              item=PyList_GetItem(row,c);
+              c_item=PyFloat_AsDouble(item);
+              Mq(r,c)= c_item;
+          }
+      }
     }
     sipCpp->setWeightJS(Mq);
 %End
@@ -496,7 +545,23 @@ using namespace KDL;
 %End
 public:
     ChainJntToJacSolver(const Chain& chain);
-    int JntToJac(const JntArray& q_in,Jacobian& jac);
+    int JntToJac(const JntArray& q_in,Jacobian& jac, bool coupled=false);
+    int setLockedJoints(SIP_PYLIST);
+%MethodCode
+    Py_ssize_t py_size;
+    double c_item;
+    PyObject *list=a0;
+    py_size=PyList_Size(list);
+    std::vector<bool> locked_joints(py_size,false);
+    for (Py_ssize_t r=0;r<py_size;r++) {
+       	  PyObject *item;
+          item=PyList_GetItem(list,r);
+	  c_item=PyFloat_AsDouble(item);
+	  locked_joints[r]=c_item;
+    }
+    sipRes=sipCpp->setLockedJoints(locked_joints);
+    
+%End
 };
 
 

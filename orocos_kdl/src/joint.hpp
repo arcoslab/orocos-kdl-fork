@@ -161,6 +161,16 @@ namespace KDL {
             return type;
         };
       
+          /**
+         * Request the scaling of the joint angle.
+         *
+         * @return const reference to the scale
+         */
+        const double& getScale() const
+        {
+            return scale;
+        };
+
         /** 
          * Request the stringified type of the joint.
          *

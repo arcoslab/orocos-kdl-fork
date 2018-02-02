@@ -72,7 +72,7 @@ OPTION(ENABLE_EXAMPLES OFF "Enable building of examples")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
 
-add_definitions(-DEIGEN2_SUPPORT)
+#add_definitions(-DEIGEN2_SUPPORT)
 
 ADD_SUBDIRECTORY( doc )
 ADD_SUBDIRECTORY( src )

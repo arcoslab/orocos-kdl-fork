@@ -148,6 +148,7 @@ namespace KDL
         int maxiter;
         Eigen::VectorXd tmp;
         Eigen::MatrixXd tmp_jac;
+        Eigen::MatrixXd tmp_jac_coupling;
         Eigen::MatrixXd tmp_jac_weight1;
         Eigen::MatrixXd tmp_jac_weight2;
         Eigen::MatrixXd tmp_ts;

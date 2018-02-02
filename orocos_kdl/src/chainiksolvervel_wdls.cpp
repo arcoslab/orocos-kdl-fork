@@ -28,20 +28,21 @@ namespace KDL
     ChainIkSolverVel_wdls::ChainIkSolverVel_wdls(const Chain& _chain,double _eps,int _maxiter):
         chain(_chain),
         jnt2jac(chain),
-        jac(chain.getNrOfJoints()),
-        U(MatrixXd::Zero(6,chain.getNrOfJoints())),
-        S(VectorXd::Zero(chain.getNrOfJoints())),
-        V(MatrixXd::Zero(chain.getNrOfJoints(),chain.getNrOfJoints())),
+        jac(chain.getNrOfIndJoints()),
+        U(MatrixXd::Zero(6,chain.getNrOfIndJoints())),
+        S(VectorXd::Zero(chain.getNrOfIndJoints())),
+        V(MatrixXd::Zero(chain.getNrOfIndJoints(),chain.getNrOfIndJoints())),
         eps(_eps),
         maxiter(_maxiter),
-        tmp(VectorXd::Zero(chain.getNrOfJoints())),
-        tmp_jac(MatrixXd::Zero(6,chain.getNrOfJoints())),
-        tmp_jac_weight1(MatrixXd::Zero(6,chain.getNrOfJoints())),
-        tmp_jac_weight2(MatrixXd::Zero(6,chain.getNrOfJoints())),
+        tmp(VectorXd::Zero(chain.getNrOfIndJoints())),
+        tmp_jac(MatrixXd::Zero(6,chain.getNrOfUnlockedJoints())),
+        tmp_jac_coupling(MatrixXd::Zero(6,chain.getNrOfIndJoints())),
+        tmp_jac_weight1(MatrixXd::Zero(6,chain.getNrOfIndJoints())),
+        tmp_jac_weight2(MatrixXd::Zero(6,chain.getNrOfIndJoints())),
         tmp_ts(MatrixXd::Zero(6,6)),
-        tmp_js(MatrixXd::Zero(chain.getNrOfJoints(),chain.getNrOfJoints())),
+        tmp_js(MatrixXd::Zero(chain.getNrOfIndJoints(),chain.getNrOfIndJoints())),
         weight_ts(MatrixXd::Identity(6,6)),
-        weight_js(MatrixXd::Identity(chain.getNrOfJoints(),chain.getNrOfJoints())),
+        weight_js(MatrixXd::Identity(chain.getNrOfIndJoints(),chain.getNrOfIndJoints())),
         lambda(0.0)
     {
     }
@@ -65,8 +66,11 @@ namespace KDL
     
     int ChainIkSolverVel_wdls::CartToJnt(const JntArray& q_in, const Twist& v_in, JntArray& qdot_out)
     {
-        jnt2jac.JntToJac(q_in,jac);
+        jnt2jac.JntToJac(q_in,jac,true);
         
+	//std::cout<<"Num Ind joints:"<<chain.getNrOfIndJoints()<<std::endl;
+	//std::cout<<"Coupling matrix:"<<chain.cm<<std::endl;
+
         double sum;
         unsigned int i,j;
         
@@ -89,9 +93,9 @@ namespace KDL
         tmp_js = weight_js.lazyProduct(V);
         
         // tmp = (Si*U'*Ly*y), 
-        for (i=0;i<jac.columns();i++) {
+        for (i=0;i<tmp_jac_coupling.cols();i++) {
             sum = 0.0;
-            for (j=0;j<jac.rows();j++) {
+            for (j=0;j<tmp_jac_coupling.rows();j++) {
                 if(i<6)
                     sum+= tmp_ts(j,i)*v_in(j);
                 else
@@ -102,6 +106,7 @@ namespace KDL
             else
                 tmp(i) = sum/S(i);
         }
+
         /*
         // x = Lx^-1*V*tmp + x
         for (i=0;i<jac.columns();i++) {
@@ -112,7 +117,15 @@ namespace KDL
             qdot_out(i)=sum;
         }
         */
-        qdot_out.data=tmp_js.lazyProduct(tmp);
+	//std::cout<<"tmp_js"<<tmp_js<<std::endl;
+	//std::cout<<"tmp"<<tmp_js<<std::endl;
+	//std::cout<<"qdot_out_data"<<qdot_out.data<<std::endl;
+	//std::cout<<"multi"<<(tmp_js*tmp).lazy()<<std::endl;
+
+	//returns qdot for all Unlocked joints.
+	qdot_out.data.noalias()=(chain.cm*(tmp_js*tmp));
+	//std::cout<<"qdot_out: "<<qdot_out.data<<std::endl;
+	//std::cout<<"test"<<std::endl;
         return ret;
     }
     
