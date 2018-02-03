@@ -44,7 +44,7 @@ namespace KDL {
         else{
             int j=0;
             for(unsigned int i=0;i<segmentNr;i++){
-                if(chain.getSegment(i).getJoint().getType()!=Joint::None){
+                if(chain.getSegment(i).getJoint().getType()!=Joint::NoJoint){
                     p_out = p_out*chain.getSegment(i).pose(q_in(j));
                     j++;
                 }else{

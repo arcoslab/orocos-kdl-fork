@@ -30,26 +30,26 @@
 namespace KDL {
 
     /**
-	  * \brief This class encapsulates a simple joint, that is with one
-	  * parameterized degree of freedom and with scalar dynamic properties.
+      * \brief This class encapsulates a simple joint, that is with one
+      * parameterized degree of freedom and with scalar dynamic properties.
      *
      * A simple joint is described by the following properties :
      *      - scale: ratio between motion input and motion output
      *      - offset: between the "physical" and the "logical" zero position.
      *      - type: revolute or translational, along one of the basic frame axes
-	  *      - inertia, stiffness and damping: scalars representing the physical
-	  *      effects along/about the joint axis only.
+      *      - inertia, stiffness and damping: scalars representing the physical
+      *      effects along/about the joint axis only.
      *
      * @ingroup KinematicFamily
      */
     class Joint {
     public:
-        typedef enum { RotAxis,RotX,RotY,RotZ,TransAxis,TransX,TransY,TransZ,None} JointType;
+        typedef enum { RotAxis,RotX,RotY,RotZ,TransAxis,TransX,TransY,TransZ,NoJoint} JointType;
         /**
          * Constructor of a joint.
          *
          * @param name of the joint
-         * @param type type of the joint, default: Joint::None
+         * @param type type of the joint, default: Joint::NoJoint
          * @param scale scale between joint input and actual geometric
          * movement, default: 1
          * @param offset offset between joint input and actual
@@ -59,12 +59,12 @@ namespace KDL {
          * @param stiffness 1D stiffness along the joint axis,
          * default: 0
          */
-        explicit Joint(const std::string& name, const JointType& type=None,const double& scale=1,const double& offset=0,
+        explicit Joint(const std::string& name, const JointType& type=NoJoint,const double& scale=1,const double& offset=0,
               const double& inertia=0,const double& damping=0,const double& stiffness=0);
         /**
          * Constructor of a joint.
          *
-         * @param type type of the joint, default: Joint::None
+         * @param type type of the joint, default: Joint::NoJoint
          * @param scale scale between joint input and actual geometric
          * movement, default: 1
          * @param offset offset between joint input and actual
@@ -74,7 +74,7 @@ namespace KDL {
          * @param stiffness 1D stiffness along the joint axis,
          * default: 0
          */
-        explicit Joint(const JointType& type=None,const double& scale=1,const double& offset=0,
+        explicit Joint(const JointType& type=NoJoint,const double& scale=1,const double& offset=0,
                const double& inertia=0,const double& damping=0,const double& stiffness=0);
         /**
          * Constructor of a joint.
@@ -92,7 +92,7 @@ namespace KDL {
          * default: 0
          */
         Joint(const std::string& name, const Vector& _origin, const Vector& _axis, const JointType& type, const double& _scale=1, const double& _offset=0,
-	      const double& _inertia=0, const double& _damping=0, const double& _stiffness=0);
+          const double& _inertia=0, const double& _damping=0, const double& _stiffness=0);
         /**
          * Constructor of a joint.
          *
@@ -108,7 +108,7 @@ namespace KDL {
          * default: 0
          */
         Joint(const Vector& _origin, const Vector& _axis, const JointType& type, const double& _scale=1, const double& _offset=0,
-	      const double& _inertia=0, const double& _damping=0, const double& _stiffness=0);
+          const double& _inertia=0, const double& _damping=0, const double& _stiffness=0);
 
         /**
          * Request the 6D-pose between the beginning and the end of
@@ -128,16 +128,16 @@ namespace KDL {
          */
         Twist twist(const double& qdot)const;
 
-        /**                                                                     
-         * Request the Vector corresponding to the axis of a revolute joint.    
-         *                                                                      
-         * @return Vector. e.g (1,0,0) for RotX etc.                            
+        /**
+         * Request the Vector corresponding to the axis of a revolute joint.
+         *
+         * @return Vector. e.g (1,0,0) for RotX etc.
          */
         Vector JointAxis() const;
 
-        /**                                                                     
-         * Request the Vector corresponding to the origin of a revolute joint.    
-         *                                                                      
+        /**
+         * Request the Vector corresponding to the origin of a revolute joint.
+         *
          * @return Vector
          */
         Vector JointOrigin() const;
@@ -160,7 +160,7 @@ namespace KDL {
         {
             return type;
         };
-      
+
           /**
          * Request the scaling of the joint angle.
          *
@@ -171,7 +171,7 @@ namespace KDL {
             return scale;
         };
 
-        /** 
+        /**
          * Request the stringified type of the joint.
          *
          * @return const string
@@ -179,11 +179,11 @@ namespace KDL {
         const std::string getTypeName() const
         {
             switch (type) {
-	    case RotAxis:
-	        return "RotAxis";
+        case RotAxis:
+            return "RotAxis";
             case TransAxis:
-	        return "TransAxis";
-	    case RotX:
+            return "TransAxis";
+        case RotX:
                 return "RotX";
             case RotY:
                 return "RotY";
@@ -195,7 +195,7 @@ namespace KDL {
                 return "TransY";
             case TransZ:
                 return "TransZ";
-            case None:
+            case NoJoint:
                 return "None";
             default:
                 return "None";
@@ -219,10 +219,10 @@ namespace KDL {
         mutable double q_previous;
 
 
-      
+
       class joint_type_exception: public std::exception{
-	virtual const char* what() const throw(){
-	  return "Joint Type excption";}
+    virtual const char* what() const throw(){
+      return "Joint Type excption";}
       } joint_type_ex;
 
     };

@@ -28,23 +28,23 @@ namespace KDL {
     Chain::Chain():
         segments(0),
         nrOfJoints(0),
-	nrOfIndJoints(0),
+    nrOfIndJoints(0),
         nrOfSegments(0),
-	cm(),
-	nrOfUnlockedJoints(0),
-	locked_joints(0)
+    cm(),
+    nrOfUnlockedJoints(0),
+    locked_joints(0)
     {
     }
 
     Chain::Chain(const Chain& in):nrOfJoints(0),
                                   nrOfSegments(0),nrOfUnlockedJoints(0),
-				  nrOfIndJoints(0),segments(0),cm(),
-				  locked_joints(0)
+                  nrOfIndJoints(0),segments(0),cm(),
+                  locked_joints(0)
     {
       //std::cout<<"copying chain constructor"<<std::endl;
         for(unsigned int i=0;i<in.getNrOfSegments();i++)
             this->addSegment(in.getSegment(i));
-	this->setCoupling(in.getLockedJoints(),in.cm);
+    this->setCoupling(in.getLockedJoints(),in.cm);
     }
 
     Chain& Chain::operator=(const Chain& arg)
@@ -53,12 +53,12 @@ namespace KDL {
         nrOfJoints=0;
         nrOfSegments=0;
         segments.resize(0);
-	nrOfIndJoints=0;
-	nrOfUnlockedJoints=0;
-	locked_joints.resize(0);
+    nrOfIndJoints=0;
+    nrOfUnlockedJoints=0;
+    locked_joints.resize(0);
         for(unsigned int i=0;i<arg.nrOfSegments;i++)
             addSegment(arg.getSegment(i));
-	this->setCoupling(arg.getLockedJoints(),arg.cm);
+    this->setCoupling(arg.getLockedJoints(),arg.cm);
         return *this;
 
     }
@@ -68,51 +68,51 @@ namespace KDL {
       //std::cout<<"add Segment"<<std::endl;
         segments.push_back(segment);
         nrOfSegments++;
-        if(segment.getJoint().getType()!=Joint::None)
-	{
-	  //std::cout<<"joint"<<std::endl;
+        if(segment.getJoint().getType()!=Joint::NoJoint)
+    {
+      //std::cout<<"joint"<<std::endl;
             nrOfJoints++;
-	    locked_joints.push_back(false);
-	    nrOfUnlockedJoints++;
-	    cm.setIdentity(nrOfUnlockedJoints,nrOfUnlockedJoints);
-	    //std::cout<<"test"<<nrOfUnlockedJoints<<std::endl;
-	    nrOfIndJoints=nrOfUnlockedJoints;
-	    //std::cout<<cm<<std::endl;
-	}
+        locked_joints.push_back(false);
+        nrOfUnlockedJoints++;
+        cm.setIdentity(nrOfUnlockedJoints,nrOfUnlockedJoints);
+        //std::cout<<"test"<<nrOfUnlockedJoints<<std::endl;
+        nrOfIndJoints=nrOfUnlockedJoints;
+        //std::cout<<cm<<std::endl;
+    }
 
     }
 
     void Chain::addChain(const Chain& chain)
     {
         for(unsigned int i=0;i<chain.getNrOfSegments();i++)
-	{
+    {
             this->addSegment(chain.getSegment(i));
-	    locked_joints.back()=chain.getLockedJoints()[i];
-	}
+        locked_joints.back()=chain.getLockedJoints()[i];
+    }
     }
 
     int Chain::setCoupling(const std::vector<bool> locked_joints,const Eigen::MatrixXd& cm)
     {
         if(locked_joints.size()!=locked_joints.size())
             return -1;
-	int nrOfUnlockedJoints_(0);
-	//std::cout<<"Locked Joints"<<std::endl;
+    int nrOfUnlockedJoints_(0);
+    //std::cout<<"Locked Joints"<<std::endl;
         for(unsigned int i=0;i<locked_joints.size();i++){
             if(!locked_joints[i])
                 nrOfUnlockedJoints_++;
-	    //std::cout<<locked_joints[i]<<" ";
+        //std::cout<<locked_joints[i]<<" ";
         }
-	//std::cout<<"nrOfunlockedjoints "<<nrOfUnlockedJoints_<<std::endl;
-	//std::cout<<"cmrows "<<cm.rows()<<std::endl;
+    //std::cout<<"nrOfunlockedjoints "<<nrOfUnlockedJoints_<<std::endl;
+    //std::cout<<"cmrows "<<cm.rows()<<std::endl;
 
         if(cm.rows()!=nrOfUnlockedJoints_)
-	  return -1;
+      return -1;
         this->locked_joints=locked_joints;
         nrOfUnlockedJoints=nrOfUnlockedJoints_;
-	this->cm=cm;
-	//std::cout<<this->cm<<std::endl;
-	nrOfIndJoints=cm.cols();
-	return(0);
+    this->cm=cm;
+    //std::cout<<this->cm<<std::endl;
+    nrOfIndJoints=cm.cols();
+    return(0);
     }
 
     const Segment& Chain::getSegment(unsigned int nr)const
