@@ -31,9 +31,9 @@
 namespace KDL {
 
     /**
-	  * \brief This class encapsulates a simple segment, that is a "rigid
-	  * body" (i.e., a frame and a rigid body inertia) with a joint and with
-	  * "handles", root and tip to connect to other segments.
+      * \brief This class encapsulates a simple segment, that is a "rigid
+      * body" (i.e., a frame and a rigid body inertia) with a joint and with
+      * "handles", root and tip to connect to other segments.
      *
      * A simple segment is described by the following properties :
      *      - Joint
@@ -57,22 +57,22 @@ namespace KDL {
          *
          * @param name name of the segment
          * @param joint joint of the segment, default:
-         * Joint(Joint::None)
+         * Joint(Joint::NoJoint)
          * @param f_tip frame from the end of the joint to the tip of
          * the segment, default: Frame::Identity()
          * @param M rigid body inertia of the segment, default: Inertia::Zero()
          */
-        explicit Segment(const std::string& name, const Joint& joint=Joint(Joint::None), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
+        explicit Segment(const std::string& name, const Joint& joint=Joint(Joint::NoJoint), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
         /**
          * Constructor of the segment
          *
          * @param joint joint of the segment, default:
-         * Joint(Joint::None)
+         * Joint(Joint::NoJoint)
          * @param f_tip frame from the end of the joint to the tip of
          * the segment, default: Frame::Identity()
          * @param M rigid body inertia of the segment, default: Inertia::Zero()
          */
-        explicit Segment(const Joint& joint=Joint(Joint::None), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
+        explicit Segment(const Joint& joint=Joint(Joint::NoJoint), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
         Segment(const Segment& in);
         Segment& operator=(const Segment& arg);
 
@@ -148,7 +148,7 @@ namespace KDL {
          */
         Frame getFrameToTip()const
         {
-            
+
             return joint.pose(0)*f_tip;
         }
 

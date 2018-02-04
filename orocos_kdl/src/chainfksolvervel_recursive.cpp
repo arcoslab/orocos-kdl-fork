@@ -49,7 +49,7 @@ namespace KDL
             int j=0;
             for (unsigned int i=0;i<segmentNr;i++) {
                 //Calculate new Frame_base_ee
-                if(chain.getSegment(i).getJoint().getType()!=Joint::None){
+                if(chain.getSegment(i).getJoint().getType()!=Joint::NoJoint){
                     out=out*FrameVel(chain.getSegment(i).pose(in.q(j)),
                                      chain.getSegment(i).twist(in.q(j),in.qdot(j)));
                     j++;//Only increase jointnr if the segment has a joint

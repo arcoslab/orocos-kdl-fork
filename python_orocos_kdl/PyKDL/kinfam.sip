@@ -28,18 +28,18 @@ using namespace KDL;
 
 
 public:
-    enum JointType {RotAxis,RotX,RotY,RotZ,TransAxis,TransX,TransY,TransZ,None};
-    Joint(std::string name, JointType type=None,double scale=1,double offset=0,
+    enum JointType {RotAxis,RotX,RotY,RotZ,TransAxis,TransX,TransY,TransZ,NoJoint};
+    Joint(std::string name, JointType type=NoJoint,double scale=1,double offset=0,
               double inertia=0,double damping=0,double stiffness=0);
-    Joint(JointType type=None,double scale=1,double offset=0,
+    Joint(JointType type=NoJoint,double scale=1,double offset=0,
           double inertia=0,const double damping=0,double stiffness=0);
     Joint(std::string name, Vector origin, Vector axis, JointType type, double scale=1, double offset=0,
-	      double inertia=0, double damping=0, double stiffness=0);
+          double inertia=0, double damping=0, double stiffness=0);
     Joint(Vector origin, Vector axis, JointType type, double scale=1, double offset=0,
-	      double inertia=0, double damping=0, double stiffness=0);
-    
+          double inertia=0, double damping=0, double stiffness=0);
+
     Joint(const Joint& in);
-    
+
     Frame pose(const double& q)const /Factory/ ;
     Twist twist(const double& qdot)const /Factory/ ;
     Vector JointAxis() const /Factory/;
@@ -70,7 +70,7 @@ using namespace KDL;
 %End
 public:
     RotationalInertia(double Ixx=0,double Iyy=0,double Izz=0,double Ixy=0,double Ixz=0,double Iyz=0);
-        
+
     static RotationalInertia Zero()/Factory/;
     Vector operator*(Vector omega) const /Factory/;
 };
@@ -87,9 +87,9 @@ using namespace KDL;
 %End
 public:
     RigidBodyInertia(double m=0, const Vector& oc=Vector::Zero(), const RotationalInertia& Ic=RotationalInertia::Zero());
-    static RigidBodyInertia Zero() /Factory/;        
+    static RigidBodyInertia Zero() /Factory/;
     RigidBodyInertia RefPoint(const Vector& p) /Factory/;
-    double getMass()const /Factory/;        
+    double getMass()const /Factory/;
     Vector getCOG() const /Factory/;
     RotationalInertia getRotationalInertia() const /Factory/;
 };
@@ -101,15 +101,15 @@ RigidBodyInertia operator*(const Rotation& R,const RigidBodyInertia& I) /Factory
 
 class Segment
 {
-    
+
 %TypeHeaderCode
 #include <kdl/segment.hpp>
 #include <kdl/kinfam_io.hpp>
 using namespace KDL;
 %End
 public:
-    Segment(const std::string& name, const Joint& joint=Joint(Joint::None), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
-    Segment(const Joint& joint=Joint(Joint::None), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
+    Segment(const std::string& name, const Joint& joint=Joint(Joint::NoJoint), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
+    Segment(const Joint& joint=Joint(Joint::NoJoint), const Frame& f_tip=Frame::Identity(),const RigidBodyInertia& I = RigidBodyInertia::Zero());
     Segment(const Segment& in);
 
     const char* __repr__();
@@ -119,7 +119,7 @@ public:
     std::string s(ss.str());
     sipRes=s.c_str();
 %End
-    
+
     const Frame& getFrameToTip()const /Factory/;
     Frame pose(const double& q)const /Factory/ ;
     Twist twist(const double& q,const double& qdot)const /Factory/ ;
@@ -131,7 +131,7 @@ public:
 
 class Chain
 {
-    
+
 %TypeHeaderCode
 #include <kdl/chain.hpp>
 using namespace KDL;
@@ -140,13 +140,13 @@ using namespace KDL;
 public:
     Chain();
     Chain(const Chain& in);
-    
+
     void addSegment(const Segment& segment);
     void addChain(const Chain& chain);
     int setCoupling(SIP_PYLIST,SIP_PYLIST);
 %MethodCode
     //void setCoupling(const std::vector<bool> locked_joints,const Eigen::MatrixXd& cm);
-    //cm has to have exactly number of joints rows, and maximum number of joints colums 
+    //cm has to have exactly number of joints rows, and maximum number of joints colums
     //unsigned int nOfJoints=sipCpp->chain.getNrOfJoints(); //To check that we are receiving valid data dimensions. This doesn't work, chain is a private member. todo: How can we check for this? Maybe this check should be done when operating with the matrix, and not here? Maybe this check should be done inside the c++ code.
     Py_ssize_t length;
     PyObject *list=a0;
@@ -155,7 +155,7 @@ public:
     for (Py_ssize_t r=0;r<length;r++) {
         PyObject *item;
         item=PyList_GetItem(list,r);
-	locked_joints[r]=PyFloat_AsDouble(item);
+    locked_joints[r]=PyFloat_AsDouble(item);
     }
 
     Py_ssize_t numRows,numCols;
@@ -171,7 +171,7 @@ public:
         row=PyList_GetItem(list2,r);
         if (numCols!=PyList_Size(row)) {
            sipIsErr=1; //todo: raise exception
-	   	       //means that not all the rows are equally long
+               //means that not all the rows are equally long
         }
         for (Py_ssize_t c=0;c<PyList_Size(row);c++) {
             PyObject *item;
@@ -181,10 +181,10 @@ public:
         }
     }
     sipRes=sipCpp->setCoupling(locked_joints,cm);
-    
+
 %End
 
-        
+
     unsigned int getNrOfJoints()const;
     unsigned int getNrOfIndJoints()const;
     unsigned int getNrOfSegments()const;
@@ -234,7 +234,7 @@ public:
     }
     sipRes=(*sipCpp)(a0);
 %End
-    
+
     void __setitem__(int index, double value);
 %MethodCode
     if (a0 < 0 || a0 >= sipCpp->rows()) {
@@ -277,7 +277,7 @@ public:
     JntArrayVel(const JntArray& q,const JntArray& qdot);
     JntArrayVel(const JntArray& q);
     void resize(unsigned int newSize);
-    
+
     JntArray value()const /Factory/;
     JntArray deriv()const /Factory/;
 };
@@ -316,7 +316,7 @@ public:
     }
     sipRes=(*sipCpp)(i,j);
 %End
-    
+
     void __setitem__(SIP_PYTUPLE,double value);
 %MethodCode
     int i,j;
@@ -337,14 +337,14 @@ public:
 %End
     Twist getColumn(unsigned int i) const /Factory/;
     void setColumn(unsigned int i,const Twist& t);
-    
+
     void changeRefPoint(const Vector& base_AB);
     void changeBase(const Rotation& rot);
     void changeRefFrame(const Frame& frame);
 
 };
 void SetToZero(Jacobian& jac);
-    
+
 void changeRefPoint(const Jacobian& src1, const Vector& base_AB, Jacobian& dest);
 void changeBase(const Jacobian& src1, const Rotation& rot, Jacobian& dest);
 void changeRefFrame(const Jacobian& src1,const Frame& frame, Jacobian& dest);
@@ -421,7 +421,7 @@ using namespace KDL;
 public:
     ChainIkSolverPos_NR(const Chain& chain,ChainFkSolverPos& fksolver,ChainIkSolverVel& iksolver,
                         unsigned int maxiter=100,double eps=epsilon);
-    
+
     virtual int CartToJnt(const JntArray& q_init , const Frame& p_in ,JntArray& q_out);
 };
 
@@ -432,10 +432,10 @@ class ChainIkSolverPos_NR_JL : ChainIkSolverPos
 using namespace KDL;
 %End
 public:
-    ChainIkSolverPos_NR_JL(const Chain& chain,const JntArray &q_min,const JntArray &q_max, 
+    ChainIkSolverPos_NR_JL(const Chain& chain,const JntArray &q_min,const JntArray &q_max,
                         ChainFkSolverPos& fksolver,ChainIkSolverVel& iksolver,
                         unsigned int maxiter=100,double eps=epsilon);
-    
+
     virtual int CartToJnt(const JntArray& q_init , const Frame& p_in ,JntArray& q_out);
 };
 
@@ -447,7 +447,7 @@ using namespace KDL;
 %End
 public:
     ChainIkSolverVel_pinv(const Chain& chain,double eps=0.00001,int maxiter=150);
-        
+
     virtual int CartToJnt(const JntArray& q_in, const Twist& v_in, JntArray& qdot_out);
 };
 
@@ -459,7 +459,7 @@ using namespace KDL;
 %End
 public:
     ChainIkSolverVel_wdls(const Chain& chain,double eps=0.00001,int maxiter=150);
-        
+
     virtual int CartToJnt(const JntArray& q_in, const Twist& v_in, JntArray& qdot_out);
     void setWeightTS(SIP_PYLIST);
 %MethodCode
@@ -481,13 +481,13 @@ public:
     }
     Eigen::MatrixXd Mx;
     Mx=Eigen::MatrixXd::Identity(numRows,numCols);
-    
+
     for (Py_ssize_t r=0;r<numRows;r++) {
         PyObject *row;
         row=PyList_GetItem(list,r);
         if (numCols!=PyList_Size(row)) {
            sipIsErr=1; //todo: raise exception. This means that the other rows don't
-	   	       // have the same size
+               // have the same size
         }
         for (Py_ssize_t c=0;c<numCols;c++) {
             PyObject *item;
@@ -517,7 +517,7 @@ public:
     } else {
       Mq=Eigen::MatrixXd::Identity(numRows,numCols);
       for (Py_ssize_t r=0;r<numRows;r++) {
-       	  PyObject *row;
+          PyObject *row;
           row=PyList_GetItem(list,r);
           if (numCols!=PyList_Size(row)) {
              sipIsErr=1; //todo: raise exception
@@ -554,13 +554,13 @@ public:
     py_size=PyList_Size(list);
     std::vector<bool> locked_joints(py_size,false);
     for (Py_ssize_t r=0;r<py_size;r++) {
-       	  PyObject *item;
+          PyObject *item;
           item=PyList_GetItem(list,r);
-	  c_item=PyFloat_AsDouble(item);
-	  locked_joints[r]=c_item;
+      c_item=PyFloat_AsDouble(item);
+      locked_joints[r]=c_item;
     }
     sipRes=sipCpp->setLockedJoints(locked_joints);
-    
+
 %End
 };
 

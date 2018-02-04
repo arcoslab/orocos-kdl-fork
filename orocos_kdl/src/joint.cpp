@@ -40,7 +40,7 @@ namespace KDL {
     }
 
     // constructor for joint along arbitrary axis, at arbitrary origin
-    Joint::Joint(const std::string& _name, const Vector& _origin, const Vector& _axis, const JointType& _type, const double& _scale, 
+    Joint::Joint(const std::string& _name, const Vector& _origin, const Vector& _axis, const JointType& _type, const double& _scale,
                  const double& _offset, const double& _inertia, const double& _damping, const double& _stiffness):
       name(_name), origin(_origin), axis(_axis / _axis.Norm()), type(_type),scale(_scale),offset(_offset),inertia(_inertia),damping(_damping),stiffness(_stiffness)
     {
@@ -53,7 +53,7 @@ namespace KDL {
     }
 
     // constructor for joint along arbitrary axis, at arbitrary origin
-    Joint::Joint(const Vector& _origin, const Vector& _axis, const JointType& _type, const double& _scale, 
+    Joint::Joint(const Vector& _origin, const Vector& _axis, const JointType& _type, const double& _scale,
                  const double& _offset, const double& _inertia, const double& _damping, const double& _stiffness):
       name("NoName"), origin(_origin), axis(_axis / _axis.Norm()), type(_type),scale(_scale),offset(_offset),inertia(_inertia),damping(_damping),stiffness(_stiffness)
     {
@@ -102,7 +102,7 @@ namespace KDL {
         case TransZ:
             return Frame(Vector(0.0,0.0,scale*q+offset));
             break;
-        case None:
+        case NoJoint:
             return Frame::Identity();
             break;
         }
@@ -123,9 +123,9 @@ namespace KDL {
         case RotZ:
             return Twist(Vector(0.0,0.0,0.0),Vector(0.0,0.0,scale*qdot));
             break;
-	case TransAxis:
-	    return Twist(axis * (scale * qdot), Vector(0,0,0));
-	    break;
+    case TransAxis:
+        return Twist(axis * (scale * qdot), Vector(0,0,0));
+        break;
         case TransX:
             return Twist(Vector(scale*qdot,0.0,0.0),Vector(0.0,0.0,0.0));
             break;
@@ -135,7 +135,7 @@ namespace KDL {
         case TransZ:
             return Twist(Vector(0.0,0.0,scale*qdot),Vector(0.0,0.0,0.0));
             break;
-        case None:
+        case NoJoint:
             return Twist::Zero();
             break;
         }
@@ -169,7 +169,7 @@ namespace KDL {
       case TransZ:
         return Vector(0.,0.,1.);
         break;
-      case None:
+      case NoJoint:
         return Vector::Zero();
         break;
       }

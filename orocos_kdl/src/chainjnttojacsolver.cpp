@@ -43,8 +43,8 @@ namespace KDL
             if(!locked_joints_[i])
                 nr_of_unlocked_joints_++;
         }
-	jac_tmp.resize(nr_of_unlocked_joints_);
-	return(0);
+    jac_tmp.resize(nr_of_unlocked_joints_);
+    return(0);
     }
 
     std::vector<bool> ChainJntToJacSolver::getLockedJoints()
@@ -56,13 +56,13 @@ namespace KDL
     {
         int jac_columns;
         if(coupled)
-	    jac_columns=chain.getNrOfIndJoints();
-	else
-	  jac_columns=nr_of_unlocked_joints_;
+        jac_columns=chain.getNrOfIndJoints();
+    else
+      jac_columns=nr_of_unlocked_joints_;
         if(q_in.rows()!=chain.getNrOfJoints()||jac_columns!=jac.columns()) {
-	  //std::cout<<"incorrect jacobian size or qin size"<<std::endl;
+      //std::cout<<"incorrect jacobian size or qin size"<<std::endl;
             return -1;
-	}
+    }
         T_tmp = Frame::Identity();
         SetToZero(t_tmp);
         int j=0;
@@ -70,8 +70,8 @@ namespace KDL
         Frame total;
         for (unsigned int i=0;i<chain.getNrOfSegments();i++) {
             //Calculate new Frame_base_ee
-            if(chain.getSegment(i).getJoint().getType()!=Joint::None){
-            	//pose of the new end-point expressed in the base
+            if(chain.getSegment(i).getJoint().getType()!=Joint::NoJoint){
+                //pose of the new end-point expressed in the base
                 total = T_tmp*chain.getSegment(i).pose(q_in(j));
                 //changing base of new segment's twist to base frame if it is not locked
                 //t_tmp = T_tmp.M*chain.getSegment(i).twist(1.0);
@@ -85,19 +85,19 @@ namespace KDL
             changeRefPoint(jac_tmp,total.p-T_tmp.p,jac_tmp);
 
             //Only increase jointnr if the segment has a joint
-            if(chain.getSegment(i).getJoint().getType()!=Joint::None){
+            if(chain.getSegment(i).getJoint().getType()!=Joint::NoJoint){
                 //Only put the twist inside if it is not locked
                 if(!locked_joints_[j])
-		    jac_tmp.setColumn(k++,t_tmp);
+            jac_tmp.setColumn(k++,t_tmp);
                 j++;
             }
 
             T_tmp = total;
         }
-	if (coupled)
-	  jac.data.noalias()=(jac_tmp.data*chain.cm);
-	else
-	  jac.data=jac_tmp.data;
+    if (coupled)
+      jac.data.noalias()=(jac_tmp.data*chain.cm);
+    else
+      jac.data=jac_tmp.data;
         return 0;
     }
 }

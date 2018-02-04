@@ -22,17 +22,17 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, Jacobian& jac, const std:
     //First we check all the sizes:
     if (q_in.rows() != tree.getNrOfJoints() || jac.columns() != tree.getNrOfJoints())
         return -1;
-    
+
     //Lets search the tree-element
     SegmentMap::const_iterator it = tree.getSegments().find(segmentname);
 
     //If segmentname is not inside the tree, back out:
     if (it == tree.getSegments().end())
         return -2;
-    
+
     //Let's make the jacobian zero:
     SetToZero(jac);
-    
+
     SegmentMap::const_iterator root = tree.getRootSegment();
 
     Frame T_total = Frame::Identity();
@@ -40,14 +40,14 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, Jacobian& jac, const std:
     while (it != root) {
         //get the corresponding q_nr for this TreeElement:
         unsigned int q_nr = it->second.q_nr;
-        
+
         //get the pose of the segment:
         Frame T_local = it->second.segment.pose(q_in(q_nr));
         //calculate new T_end:
         T_total = T_local * T_total;
-        
+
         //get the twist of the segment:
-        if (it->second.segment.getJoint().getType() != Joint::None) {
+        if (it->second.segment.getJoint().getType() != Joint::NoJoint) {
             Twist t_local = it->second.segment.twist(q_in(q_nr), 1.0);
             //transform the endpoint of the local twist to the global endpoint:
             t_local = t_local.RefPoint(T_total.p - T_local.p);
@@ -61,9 +61,9 @@ int TreeJntToJacSolver::JntToJac(const JntArray& q_in, Jacobian& jac, const std:
     }//endwhile
     //Change the base of the complete jacobian from the endpoint to the base
     changeBase(jac, T_total.M, jac);
-    
+
     return 0;
-    
+
 }//end JntToJac
 }//end namespace
 
