@@ -1,6 +1,8 @@
 # orocos-kdl-fork
 
-ARCOS-Lab fork of orcos-kdl
+ARCOS-Lab fork of Orocos-KDL
+
+This is a fork of [Orocos Kinematics and Dynamics Library](https://github.com/orocos/orocos_kinematics_dynamics) repo. 
 
 This fork adds some new features to Orocos-KDL used in ARCOS-Lab projects.
 
